@@ -71,14 +71,16 @@ void triangle(const byte wait = 5) {
 
   void normale(const byte wait = 1) {
     for (auto c = 0; c < 256; c += 10) {
-      for (auto t = -500; t < 256; t += 1) {
-        for (auto i = 0; i < NB_LED; ++i) {
-          const auto j = t + 40 * i;
-          const byte v = j < -255 ? 0 : (j <= 0 ? pgm_read_byte_near(NORMALE - j) : ( j <= 255 ? pgm_read_byte_near(NORMALE + j) : 0) );
-          leds[i] = CHSV(c, 255, pgm_read_byte_near(CIEL2 + v));
+      for(auto sens = -1; sens <= 1; sens += 2) {
+        for (auto t = -400; t < 256; ++t) {
+          for (auto i = 0; i < NB_LED; ++i) {
+            const auto j = sens*t + 40 * (i - NB_LED/2);
+            const byte v = j < -255 ? 0 : (j <= 0 ? pgm_read_byte_near(NORMALE - j) : ( j <= 255 ? pgm_read_byte_near(NORMALE + j) : 0) );
+            leds[i] = CHSV(c, 255, pgm_read_byte_near(CIEL + v));
+          }
+          FastLED.show();
+          delay(wait);
         }
-        FastLED.show(8);
-        delay(wait);
       }
     }
   }
