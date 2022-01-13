@@ -20,14 +20,15 @@
 #include "abstract.h"
 
 
-template <byte NB_LED>
+template <byte NB_LED, byte PIN_LEDS, byte PIN_LDR>
 class Application : Abstract {
 public:
 /**
  * Lancée une fois à l'initialisation.
  */
   bool setup() {
-    FastLED.addLeds<WS2812Controller800Khz, 8>(leds, NB_LED);
+    FastLED.addLeds<WS2812Controller800Khz, PIN_LEDS>(leds, NB_LED);
+    pinMode(PIN_LDR, INPUT_PULLUP);
     return true;
   }
 
@@ -35,7 +36,12 @@ public:
  * Lancée itérativement.
  */
   bool loop() {
-    normale();
+    const auto a = analogRead(PIN_LDR);
+    const auto c = max(0, min((a-200)/2, 255)); 
+    Serial.print(a);  
+    Serial.print(',');  
+    Serial.println(c);  
+    normale(1, c);
     return true;
   }
   
@@ -69,20 +75,21 @@ void triangle(const byte wait = 5) {
     }
   }
 
-  void normale(const byte wait = 1) {
-    for (auto c = 0; c < 256; c += 10) {
-      for(auto sens = -1; sens <= 1; sens += 2) {
-        for (auto t = -400; t < 256; ++t) {
-          for (auto i = 0; i < NB_LED; ++i) {
-            const auto j = sens*t + 40 * (i - NB_LED/2);
-            const byte v = j < -255 ? 0 : (j <= 0 ? pgm_read_byte_near(NORMALE - j) : ( j <= 255 ? pgm_read_byte_near(NORMALE + j) : 0) );
-            leds[i] = CHSV(c, 255, pgm_read_byte_near(CIEL + v));
-          }
-          FastLED.show();
-          delay(wait);
+  void normale(const byte wait = 1, const byte lum = 16) {
+    static auto c = 0;
+    
+    for(auto sens = -1; sens <= 1; sens += 2) {
+      for (auto t = -900; t < 900; ++t) {
+        for (auto i = 0; i < NB_LED; ++i) {
+          const auto j = sens*t + 40 * (i - NB_LED/2);
+          const byte v = j < -255 ? 0 : (j <= 0 ? pgm_read_byte_near(NORMALE - j) : ( j <= 255 ? pgm_read_byte_near(NORMALE + j) : 0) );
+          leds[i] = CHSV(c % 256, 255, pgm_read_byte_near(CIEL + v));
         }
+        FastLED.show(lum);
+        delay(wait);
       }
     }
+    c += 5;
   }
   
 private:
