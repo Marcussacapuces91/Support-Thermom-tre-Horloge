@@ -38,9 +38,11 @@ public:
   bool loop() {
     const auto a = analogRead(PIN_LDR);
     const auto c = max(0, min((a-200)/2, 255)); 
-    Serial.print(a);  
-    Serial.print(',');  
-    Serial.println(c);  
+    if (SERIAL) {
+      Serial.print(a);  
+      Serial.print(',');  
+      Serial.println(c);  
+    }
     normale(1, c);
     return true;
   }
