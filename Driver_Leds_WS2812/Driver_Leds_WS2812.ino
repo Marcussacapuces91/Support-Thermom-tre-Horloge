@@ -16,11 +16,20 @@
 
 #include "application.h"
 
+/// Arduino ATméga 328 (Uno)
 #if ARDUINO_AVR_UNO
 #define SERIAL true
 static const auto PIN_LEDS = 8;
 static const auto NB_LED = 4;
 static const auto PIN_LDR = A0;
+#endif
+
+/// Arduino ATtiny 85++
+#if ARDUINO_AVR_ATTINYX5
+#define SERIAL false
+static const auto PIN_LEDS = 0;
+static const auto NB_LED = 8;
+static const auto PIN_LDR = A1;
 #endif
 
 auto app = Application<NB_LED, PIN_LEDS, PIN_LDR>();
